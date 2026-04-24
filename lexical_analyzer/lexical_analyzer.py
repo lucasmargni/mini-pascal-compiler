@@ -225,9 +225,9 @@ while(state != "end"):
             state = "start"
             
         case "got_word":
-            if(curr_word in key_words):
+            if(curr_word.lower() in key_words):
                 # current word is a key word
-                token_list.append(key_words[curr_word])
+                token_list.append(key_words[curr_word.lower()])
             else:
                 # current word is a identifier, verify symbol table pointer
                 if(curr_word not in symbol_table):
