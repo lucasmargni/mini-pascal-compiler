@@ -35,7 +35,7 @@ To execute the lexical analyzer, run the following command from this directory:
 python3 test_lexical.py test/test_case1.pas
 ```
 
-Additional test cases are provided in the `test` directory (e.g., `test_case2`, `test_case3`).
+Additional test cases are provided in the `test` directory (e.g., `test_case2`, `error_case1`).
 You can also provide your own Pascal source file as input to analyze different programs.
 
 ## 🖼️ Finite Automaton
