@@ -2,11 +2,6 @@ from Token import Token
 from typing import List, Dict
 import sys
 
-# parameter: name of the input file
-if(len(sys.argv) < 2):
-    print("Error: it is required the name of the input file as parameter")
-    sys.exit(1)
-
 class LexicalAnalyzer:
     # pascal file recived
     input_file : str = ""
@@ -170,7 +165,7 @@ class LexicalAnalyzer:
                         # end of file reached
                         print(f"Error: comment opened but not closed (row {self.row}, col {self.col})")
                         self.file.close()
-                        exit(1)
+                        sys.exit(1)
                 case "in_digit":
                     next_char : str = self.char
                     curr_word = ""
