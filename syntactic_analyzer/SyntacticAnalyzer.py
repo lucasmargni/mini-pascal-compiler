@@ -20,7 +20,7 @@ class SyntacticAnalyzer:
     # MATCH
 
     def __match_terminal(self, terminal: str):
-        print(f"Expected: {terminal} Current: {self.curr_token.toString()}")
+        # print(f"Expected: {terminal} Current: {self.curr_token.toString()}")
 
         if (self.curr_token.equals(terminal)):
             self.curr_token = self.lexical_analyzer.next_token()
