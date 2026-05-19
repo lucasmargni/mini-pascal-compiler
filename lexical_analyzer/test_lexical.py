@@ -1,5 +1,4 @@
-from Token import Token
-from LexicalAnalyzer import LexicalAnalyzer
+from lexical_analyzer import Token, LexicalAnalyzer
 from typing import List
 import sys
 

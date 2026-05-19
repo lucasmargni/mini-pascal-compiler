@@ -29,7 +29,7 @@ This approach allows the analyzer to systematically and efficiently process the 
 
 ## ▶️ Running the Analyzer
 
-To execute the lexical analyzer, run the following command from this directory:
+To execute the lexical analyzer, run the following command from the root directory:
 
 ```bash
 python3 test_lexical.py test/test_case1.pas

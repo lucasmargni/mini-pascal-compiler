@@ -1,4 +1,4 @@
-from Token import Token
+from lexical_analyzer import Token
 from typing import List, Dict
 import sys
 
@@ -230,7 +230,7 @@ class LexicalAnalyzer:
                     if(curr_word not in self.symbol_table):
                         self.symbol_table.append(curr_word)
                     
-                    return Token(curr_word, str(self.symbol_table.index(curr_word)))
+                    return Token("num", str(self.symbol_table.index(curr_word)))
                     
                 case "got_word":
                     if(curr_word.lower() in self.key_words):
@@ -241,4 +241,4 @@ class LexicalAnalyzer:
                         if(curr_word not in self.symbol_table):
                             self.symbol_table.append(curr_word)
             
-                    return Token(curr_word, str(self.symbol_table.index(curr_word)))
+                    return Token("id", str(self.symbol_table.index(curr_word)))
