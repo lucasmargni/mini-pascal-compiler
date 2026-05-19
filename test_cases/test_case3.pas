@@ -31,5 +31,5 @@ begin
   else
     result := x;
 
-  write(result);
+  write(result)
 end.

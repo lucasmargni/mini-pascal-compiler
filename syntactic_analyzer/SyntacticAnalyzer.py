@@ -1,5 +1,4 @@
 from lexical_analyzer import Token, LexicalAnalyzer
-from typing import List
 import sys
 
 class SyntacticAnalyzer:
@@ -15,7 +14,7 @@ class SyntacticAnalyzer:
         self.__program()
 
     def __syntax_error(self):
-        print("Error: syntactic error")
+        print("Syntactic Error: syntactic error")
         sys.exit(1)
 
     # MATCH
@@ -335,15 +334,3 @@ class SyntacticAnalyzer:
             self.__match_terminal("false")
         else:
             self.__syntax_error()
-
-
-# parameter: name of the input file
-if(len(sys.argv) < 2):
-    print("Error: it is required the name of the input file as parameter")
-    sys.exit(1)
-
-# pascal file recived
-input_file : str = sys.argv[1]
-
-sa = SyntacticAnalyzer(input_file)
-sa.main()

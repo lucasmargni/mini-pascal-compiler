@@ -11,5 +11,5 @@ begin
   result := a + b;
   isValid := true;
 
-  write(result);
+  write(result)
 end.

@@ -17,6 +17,6 @@ begin
       isEven := false;
 
     write(counter);
-    counter := counter + 1;
+    counter := counter + 1
   end;
 end.

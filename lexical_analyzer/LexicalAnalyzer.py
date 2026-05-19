@@ -115,7 +115,7 @@ class LexicalAnalyzer:
                             return None
                         case _:
                             # othewise
-                            print(f"Error: invalid character detected: {self.char} (row {self.row}, col {self.col})")
+                            print(f"Lexical Error: invalid character detected: {self.char} (row {self.row}, col {self.col})")
                             self.file.close()
                             sys.exit(1)
                 
@@ -163,7 +163,7 @@ class LexicalAnalyzer:
                         self.state = "start"
                     else:
                         # end of file reached
-                        print(f"Error: comment opened but not closed (row {self.row}, col {self.col})")
+                        print(f"Lexical Error: comment opened but not closed (row {self.row}, col {self.col})")
                         self.file.close()
                         sys.exit(1)
                 case "in_digit":
