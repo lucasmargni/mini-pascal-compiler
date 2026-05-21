@@ -1,4 +1,4 @@
-program testCase1;
+program errorCase2;
 
 var
   a, b: integer;
@@ -11,5 +11,7 @@ begin
   result := a + b;
   isValid := true;
 
-  write(result);
+  write(result)
 end.
+
+program moreProgram;

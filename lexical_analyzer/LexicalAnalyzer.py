@@ -1,5 +1,5 @@
 from lexical_analyzer import Token
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import sys
 
 class LexicalAnalyzer:
@@ -63,6 +63,9 @@ class LexicalAnalyzer:
 
         self.file.seek(self.file.tell() - 1)
 
+    def get_position(self) -> Tuple[int, int]:
+        return (self.row, self.col)
+
     def next_token(self) -> Token | None:
         if(self.no_more_tokens):
             return None
@@ -115,7 +118,7 @@ class LexicalAnalyzer:
                             return None
                         case _:
                             # othewise
-                            print(f"Lexical Error: invalid character detected: {self.char} (row {self.row}, col {self.col})")
+                            print(f"Lexical Error: invalid character detected '{self.char}' (row {self.row}, col {self.col})")
                             self.file.close()
                             sys.exit(1)
                 

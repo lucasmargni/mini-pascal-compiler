@@ -2,7 +2,6 @@ from lexical_analyzer import Token, LexicalAnalyzer
 import sys
 
 class SyntacticAnalyzer:
-    parse_tree = []
     curr_token : Token | None = None
     lexical_analyzer : LexicalAnalyzer | None = None
 
@@ -11,10 +10,22 @@ class SyntacticAnalyzer:
 
     def main(self):
         self.curr_token = self.lexical_analyzer.next_token()
+
+        if (self.curr_token == None):
+            # file has no tokens
+            self.__syntax_error("program")
+
         self.__program()
 
-    def __syntax_error(self):
-        print("Syntactic Error: syntactic error")
+        # there are more tokens, but grammar ended
+        if (self.curr_token != None):
+            (row, col) = self.lexical_analyzer.get_position()
+            print(f"Syntactic Error: program ended but more tokens found (row {row}, col {col})")
+            sys.exit(1)
+
+    def __syntax_error(self, expected : str):
+        (row, col) = self.lexical_analyzer.get_position()
+        print(f"Syntactic Error: expected '{expected}' but '{self.curr_token.toString()}' found (row {row}, col {col})")
         sys.exit(1)
 
     # MATCH
@@ -24,8 +35,15 @@ class SyntacticAnalyzer:
 
         if (self.curr_token.equals(terminal)):
             self.curr_token = self.lexical_analyzer.next_token()
+
+            if (self.curr_token == None and terminal != "."):
+                # no more tokens found and program not ended
+                (row, col) = self.lexical_analyzer.get_position()
+                print(f"Syntactic Error: invalid end of program (row {row}, col {col})")
+                sys.exit(1)
         else:
-            self.__syntax_error()
+            # invalid token
+            self.__syntax_error(terminal)
 
     # PROGRAM
 
@@ -84,7 +102,7 @@ class SyntacticAnalyzer:
         elif (self.curr_token.equals("boolean")):
             self.__match_terminal("boolean")
         else:
-            self.__syntax_error()
+            self.__syntax_error("a type")
 
     def __subroutine_declaration_part(self):
         if (self.curr_token.equals("procedure")):
@@ -144,6 +162,11 @@ class SyntacticAnalyzer:
     def __compound_statement_rep(self):
         if (self.curr_token.equals(";")):
             self.__match_terminal(";")
+            self.__compound_statement_rep_opt()
+
+    def __compound_statement_rep_opt(self):
+        if (self.curr_token.equals("id") or self.curr_token.equals("begin") or self.curr_token.equals("if")
+            or self.curr_token.equals("while") or self.curr_token.equals("read") or self.curr_token.equals("write")):
             self.__statement()
             self.__compound_statement_rep()
 
@@ -162,7 +185,7 @@ class SyntacticAnalyzer:
         elif (self.curr_token.equals("write")):
             self.__write_statement()
         else:
-            self.__syntax_error()
+            self.__syntax_error("a statement")
 
     def __statement_id(self):
         if (self.curr_token.equals(":=")):
@@ -251,7 +274,7 @@ class SyntacticAnalyzer:
         elif (self.curr_token.equals(">=")):
             self.__match_terminal(">=")
         else:
-            self.__syntax_error()
+            self.__syntax_error("a relation operator")
 
     def __simple_expression(self):
         self.__unary_operator_opt()
@@ -278,7 +301,7 @@ class SyntacticAnalyzer:
         elif (self.curr_token.equals("or")):
             self.__match_terminal("or")
         else:
-            self.__syntax_error()
+            self.__syntax_error("an expression operator")
 
     def __term(self):
         self.__factor()
@@ -298,7 +321,7 @@ class SyntacticAnalyzer:
         elif (self.curr_token.equals("and")):
             self.__match_terminal("and")
         else:
-            self.__syntax_error()
+            self.__syntax_error("a term operator")
 
     def __factor(self):
         if (self.curr_token.equals("id")):
@@ -316,7 +339,7 @@ class SyntacticAnalyzer:
         elif (self.curr_token.equals("true") or self.curr_token.equals("false")):
             self.__language_constant()
         else:
-            self.__syntax_error()
+            self.__syntax_error("a factor")
 
     def __variable(self):
         self.__match_terminal("id")
@@ -333,4 +356,4 @@ class SyntacticAnalyzer:
         elif (self.curr_token.equals("false")):
             self.__match_terminal("false")
         else:
-            self.__syntax_error()
+            self.__syntax_error("a language constant")
