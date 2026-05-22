@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 class Token:
     name : str = ""
@@ -20,101 +20,67 @@ class Token:
 
         return string
     
+
+    def toTerminal(self) -> str:
+        TOKEN_TERMINALS : Dict[Tuple[str, str], str] = {
+            ("relop", "lt"): "<",
+            ("relop", "leq"): "<=",
+            ("relop", "gt"): ">",
+            ("relop", "geq"): ">=",
+            ("relop", "eq"): "=",
+            ("relop", "neq"): "<>",
+
+            ("arithop", "plus"): "+",
+            ("arithop", "minus"): "-",
+            ("arithop", "mult"): "*",
+            ("arithop", "div"): "div",
+
+            ("logicop", "and"): "and",
+            ("logicop", "or"): "or",
+            ("logicop", "not"): "not",
+
+            ("asign", ""): ":=",
+            ("semicolon", ""): ";",
+            ("comma", ""): ",",
+            ("colon", ""): ":",
+            ("dot", ""): ".",
+            ("lpar", ""): "(",
+            ("rpar", ""): ")",
+
+            ("program", ""): "program",
+            ("begin", ""): "begin",
+            ("end", ""): "end",
+            ("var", ""): "var",
+            ("if", ""): "if",
+            ("then", ""): "then",
+            ("else", ""): "else",
+            ("while", ""): "while",
+            ("do", ""): "do",
+            ("function", ""): "function",
+            ("procedure", ""): "procedure",
+            ("read", ""): "read",
+            ("write", ""): "write",
+
+            ("bool", "true"): "true",
+            ("bool", "false"): "false",
+
+            ("type", "integer"): "integer",
+            ("type", "boolean"): "boolean",
+
+            ("id", ""): "id",
+            ("num", ""): "num"
+        }
+
+        # identifiers and numbers ignore attribute
+        if (self.name == "id" or self.name == "num"):
+            return TOKEN_TERMINALS[(self.name, "")]
+        
+        elif (self.name, self.atribute) in TOKEN_TERMINALS:
+            return TOKEN_TERMINALS[(self.name, self.atribute)]
+
+        else:
+            return "unknown"
+    
     # checks if the current token matches the given grammar terminal
     def equals(self, terminal: str) -> bool:
-
-        terminal_relop: Dict[str, str] = {
-            "<": "lt",
-            "<=": "leq",
-            ">": "gt",
-            ">=": "geq",
-            "=": "eq",
-            "<>": "neq"
-        }
-
-        terminal_arithop: Dict[str, str] = {
-            "+": "plus",
-            "-": "minus",
-            "*": "mult",
-            "div": "div"
-        }
-
-        terminal_logicop: Dict[str, str] = {
-            "and": "and",
-            "or": "or",
-            "not": "not"
-        }
-
-        terminal_punctuation_marks: Dict[str, str] = {
-            ":=": "asign",
-            ";": "semicolon",
-            ",": "comma",
-            ":": "colon",
-            ".": "dot",
-            "(": "lpar",
-            ")": "rpar"
-        }
-
-        terminal_literals : List[str] = [
-            "program",
-            "begin",
-            "end",
-            "var",
-            "if",
-            "then",
-            "else",
-            "while",
-            "do",
-            "function",
-            "procedure",
-            "read",
-            "write"
-        ]
-
-        terminal_bool : List[str] = [
-            "true",
-            "false"
-        ]
-
-        terminal_type : List[str] = [
-            "integer",
-            "boolean"
-        ]
-
-        # identifier
-        if terminal == "id":
-            return self.name == "id"
-
-        # number
-        elif terminal == "num":
-            return self.name == "num"
-
-        # relational operators
-        elif terminal in terminal_relop:
-            return self.name == "relop" and self.atribute == terminal_relop[terminal]
-
-        # arithmetic operators
-        elif terminal in terminal_arithop:
-            return self.name == "arithop" and self.atribute == terminal_arithop[terminal]
-
-        # logical operators
-        elif terminal in terminal_logicop:
-            return self.name == "logicop" and self.atribute == terminal_logicop[terminal]
-
-        # punctuation marks
-        elif terminal in terminal_punctuation_marks:
-            return self.name == terminal_punctuation_marks[terminal]
-
-        # reserved words
-        elif terminal in terminal_literals:
-            return self.name == terminal
-
-        # boolean constants
-        elif terminal in terminal_bool:
-            return self.name == "bool" and self.atribute == terminal
-
-        # types
-        elif terminal in terminal_type:
-            return self.name == "type" and self.atribute == terminal
-
-        return False
+        return self.toTerminal() == terminal

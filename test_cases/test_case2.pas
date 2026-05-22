@@ -11,7 +11,7 @@ begin
 
   while (counter < limit) do
   begin
-    if (counter mod 2 = 0) then
+    if (counter div 2 = 0) then
       isEven := true
     else
       isEven := false;

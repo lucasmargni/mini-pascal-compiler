@@ -25,14 +25,12 @@ class SyntacticAnalyzer:
 
     def __syntax_error(self, expected : str):
         (row, col) = self.lexical_analyzer.get_position()
-        print(f"Syntactic Error: expected '{expected}' but '{self.curr_token.toString()}' found (row {row}, col {col})")
+        print(f"Syntactic Error: expected '{expected}' but '{self.curr_token.toTerminal()}' found (row {row}, col {col})")
         sys.exit(1)
 
     # MATCH
 
     def __match_terminal(self, terminal: str):
-        # print(f"Expected: {terminal} Current: {self.curr_token.toString()}")
-
         if (self.curr_token.equals(terminal)):
             self.curr_token = self.lexical_analyzer.next_token()
 
