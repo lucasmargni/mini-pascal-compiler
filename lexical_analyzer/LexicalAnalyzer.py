@@ -1,5 +1,5 @@
 from lexical_analyzer import Token
-from typing import List, Dict, Tuple
+from typing import Dict, Tuple
 import sys
 
 class LexicalAnalyzer:
@@ -12,9 +12,6 @@ class LexicalAnalyzer:
     char : str = ""
     row : int = 1
     col : int = 0
-
-    # symbol table storing pointers to all numbers and identifiers
-    symbol_table : List[str] = []
 
     # dictionary of all key words with corresponding token
     key_words : Dict[str, Token] = {
@@ -229,19 +226,12 @@ class LexicalAnalyzer:
                 case "got_rpar":
                     return Token("rpar")
                 case "got_num":
-                    # verify symbol table pointer of current word
-                    if(curr_word not in self.symbol_table):
-                        self.symbol_table.append(curr_word)
-                    
-                    return Token("num", str(self.symbol_table.index(curr_word)))
+                    return Token("num", int(curr_word))
                     
                 case "got_word":
                     if(curr_word.lower() in self.key_words):
                         # current word is a key word
                         return self.key_words[curr_word.lower()]
                     else:
-                        # current word is a identifier, verify symbol table pointer
-                        if(curr_word not in self.symbol_table):
-                            self.symbol_table.append(curr_word)
-            
-                    return Token("id", str(self.symbol_table.index(curr_word)))
+                        # current word is a identifier, save as attribute its lexeme
+                        return Token("id", curr_word.lower())

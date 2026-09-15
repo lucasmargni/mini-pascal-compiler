@@ -27,3 +27,10 @@ class SymbolTable:
             return True
         else:
             return False
+
+    # checks if the symbol exists in the current symbol table
+    def exists_symbol(self, name: str) -> bool:
+        if(name in self.table):
+            return True
+        else:
+            return False
