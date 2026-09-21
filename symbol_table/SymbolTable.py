@@ -6,7 +6,7 @@ class SymbolTable:
     table: dict[str, Symbol] = {}           # actual symbol table with data
     prev: Optional[SymbolTable] = None      # reference to the symbol table above in the environment
 
-    def __init__(self, prev = None):
+    def __init__(self, prev: Optional[SymbolTable] = None):
         self.prev = prev
 
     def add_symbol(self, symbol: Symbol):
