@@ -205,12 +205,11 @@ The syntactic analyzer implements the following grammar using a recursive descen
 
 <expression>
     ::= <simple_expression>
-        <expression_rep>
+        <expression_opt>
 
-<expression_rep>
+<expression_opt>
     ::= <relation>
         <simple_expression>
-        <expression_rep>
      | ε
 
 <relation>
