@@ -43,7 +43,7 @@ class LexicalAnalyzer:
     def __init__(self, input_file):
         self.input_file = input_file
 
-        self.file = open(self.input_file, "r")    
+        self.file = open(self.input_file, "r", newline='')    
 
     def read_char(self) -> str:
         if(self.char == "\n"):

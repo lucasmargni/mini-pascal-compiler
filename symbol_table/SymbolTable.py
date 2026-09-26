@@ -3,10 +3,11 @@ from typing import Optional
 from symbol_table import Symbol
 
 class SymbolTable:
-    table: dict[str, Symbol] = {}           # actual symbol table with data
+    table: dict[str, Symbol]                # actual symbol table with data
     prev: Optional[SymbolTable] = None      # reference to the symbol table above in the environment
 
     def __init__(self, prev: Optional[SymbolTable] = None):
+        self.table = {}
         self.prev = prev
 
     def add_symbol(self, symbol: Symbol):

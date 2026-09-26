@@ -6,10 +6,11 @@ import sys
 class SyntacticSemanticAnalyzer:
     curr_token : Optional[Token] = None
     lexical_analyzer : Optional[LexicalAnalyzer] = None
-    curr_symbol_table : SymbolTable = SymbolTable()
+    curr_symbol_table : SymbolTable
 
     def __init__(self, input_file : str):
         self.lexical_analyzer = LexicalAnalyzer(input_file)
+        self.curr_symbol_table = SymbolTable()
 
     def main(self):
         self.curr_token = self.lexical_analyzer.next_token()
@@ -51,6 +52,31 @@ class SyntacticSemanticAnalyzer:
     def __type_error(self, type_found : str, type_expected : str):
         (row, col) = self.lexical_analyzer.get_position()
         print(f"Semantic Error: type expected '{type_expected}' type '{type_found}' found (row {row}, col {col})")
+        sys.exit(1)
+
+    def __non_procedure_error(self, found : str):
+        (row, col) = self.lexical_analyzer.get_position()
+        print(f"Semantic Error: procedure expected but '{found}' found (row {row}, col {col})")
+        sys.exit(1)
+        
+    def __non_function_error(self, found : str):
+        (row, col) = self.lexical_analyzer.get_position()
+        print(f"Semantic Error: function expected but '{found}' found (row {row}, col {col})")
+        sys.exit(1)
+        
+    def __non_return_symbol_error(self, found : str):
+        (row, col) = self.lexical_analyzer.get_position()
+        print(f"Semantic Error: variable or function expected but '{found}' found (row {row}, col {col})")
+        sys.exit(1)
+
+    def __too_much_parameters_error(self):
+        (row, col) = self.lexical_analyzer.get_position()
+        print(f"Semantic Error: too much parameters found (row {row}, col {col})")
+        sys.exit(1)
+
+    def __not_enough_parameters_error(self):
+        (row, col) = self.lexical_analyzer.get_position()
+        print(f"Semantic Error: not enough parameters found (row {row}, col {col})")
         sys.exit(1)
 
     # MATCH
@@ -186,17 +212,18 @@ class SyntacticSemanticAnalyzer:
         new_symbol_table = SymbolTable(self.curr_symbol_table)
         self.curr_symbol_table = new_symbol_table
 
-        self.__formal_parameters_opt()
+        param_types = self.__formal_parameters_opt()
         self.__match_terminal(";")
 
-        curr_procedure = Symbol(lexeme, "procedure")
-        self.curr_symbol_table.add_symbol(curr_procedure)
+        proc_symbol = Symbol(lexeme, "procedure")
+        proc_symbol.set_param_types(param_types)
+        self.curr_symbol_table.add_symbol(proc_symbol)
 
         self.__block()
 
         # end of new environment, delete it and add the procedure to previous table
         self.curr_symbol_table = self.curr_symbol_table.prev
-        self.curr_symbol_table.add_symbol(curr_procedure)
+        self.curr_symbol_table.add_symbol(proc_symbol)
 
     def __function_declaration(self):
         self.__match_terminal("function")
@@ -209,36 +236,49 @@ class SyntacticSemanticAnalyzer:
         new_symbol_table = SymbolTable(self.curr_symbol_table)
         self.curr_symbol_table = new_symbol_table
 
-        self.__formal_parameters_opt()
+        param_types = self.__formal_parameters_opt()
         self.__match_terminal(":")
         name_type = self.__type()
         self.__match_terminal(";")
 
-        self.curr_symbol_table.add_symbol(Symbol(lexeme, "function", name_type, can_be_assigned=True))
+        funct_symbol = Symbol(lexeme, "function", name_type, can_be_assigned=True)
+        funct_symbol.set_param_types(param_types)
+        self.curr_symbol_table.add_symbol(funct_symbol)
         
         self.__block()
 
         # end of new environment, delete it and add the function to previous table
         self.curr_symbol_table = self.curr_symbol_table.prev
-        self.curr_symbol_table.add_symbol(Symbol(lexeme, "function", name_type))
 
-    def __formal_parameters_opt(self):
+        funct_symbol2 = Symbol(lexeme, "function", name_type)
+        funct_symbol2.set_param_types(param_types)
+        self.curr_symbol_table.add_symbol(funct_symbol2)
+
+    def __formal_parameters_opt(self) -> list[str]:
         if (self.curr_token.equals("(")):
-            self.__formal_parameters()
+            return self.__formal_parameters()
+        
+        return []
 
-    def __formal_parameters(self):
+    def __formal_parameters(self) -> list[str]:
         self.__match_terminal("(")
-        self.__formal_parameter_section()
-        self.__formal_parameters_rep()
+        param_types = self.__formal_parameter_section()
+        param_types2 = self.__formal_parameters_rep()
         self.__match_terminal(")")
 
-    def __formal_parameters_rep(self):
+        return param_types + param_types2
+
+    def __formal_parameters_rep(self) -> list[str]:
         if (self.curr_token.equals(";")):
             self.__match_terminal(";")
-            self.__formal_parameter_section()
-            self.__formal_parameters_rep()
+            param_types = self.__formal_parameter_section()
+            param_types2 = self.__formal_parameters_rep()
 
-    def __formal_parameter_section(self):
+            return param_types + param_types2
+        
+        return []
+
+    def __formal_parameter_section(self) -> list[str]:
         list_ids = self.__identifiers_list()
         self.__match_terminal(":")
         name_type = self.__type()
@@ -249,6 +289,8 @@ class SyntacticSemanticAnalyzer:
                 self.__uniqueness_error(id)
         
             self.curr_symbol_table.add_symbol(Symbol(id, "var", name_type))
+
+        return [name_type] * len(list_ids)
 
     # STATEMENTS
 
@@ -287,17 +329,23 @@ class SyntacticSemanticAnalyzer:
             self.__syntax_error("a statement")
 
     def __statement_id(self, lexeme: str):
-        if (not self.curr_symbol_table.get_symbol(lexeme)):
+        curr_id = self.curr_symbol_table.get_symbol(lexeme)
+
+        if (not curr_id):
             self.__undeclared_variable_error(lexeme)
 
         if (self.curr_token.equals(":=")):
             # check if the id is a variable or a function that can be assigned
-            if(not self.curr_symbol_table.get_symbol(lexeme).can_be_assigned):
+            if (not curr_id.can_be_assigned):
                 self.__non_assignable_id_error(lexeme)
 
             self.__assignment_without_id(lexeme)
         else:
-            self.__procedure_call_without_id()
+            # check if the id is a procedure
+            if(curr_id.symbol_type != "procedure"):
+                self.__non_procedure_error(lexeme)
+            
+            self.__procedure_call_without_id(curr_id)
 
     def __assignment_without_id(self, lexeme: str):
         self.__match_terminal(":=")
@@ -305,13 +353,14 @@ class SyntacticSemanticAnalyzer:
 
         lexeme_type = self.curr_symbol_table.get_symbol(lexeme).data_type
 
+        # check if id and the right side are of the same type
         if (expression_type != lexeme_type):
             self.__type_error(expression_type, lexeme_type)
 
-    def __procedure_call_without_id(self):
+    def __procedure_call_without_id(self, curr_id: Symbol):
         if (self.curr_token.equals("(")):
             self.__match_terminal("(")
-            self.__expression_list()
+            self.__expression_list(curr_id.param_types)
             self.__match_terminal(")")
 
     def __conditional_statement(self):
@@ -358,15 +407,32 @@ class SyntacticSemanticAnalyzer:
 
     # EXPRESSIONS
 
-    def __expression_list(self):
-        self.__expression()
-        self.__expression_list_rep()
+    def __expression_list(self, param_types: list[str]):
+        name_type = self.__expression()
+        count = 0
 
-    def __expression_list_rep(self):
+        if (count >= len(param_types)):
+            self.__too_much_parameters_error()
+        elif (name_type != param_types[count]):
+            self.__type_error(name_type, param_types[count])
+
+        self.__expression_list_rep(count+1, param_types)
+
+    def __expression_list_rep(self, count: int, param_types: list[str]):
         if (self.curr_token.equals(",")):
             self.__match_terminal(",")
-            self.__expression()
-            self.__expression_list_rep()
+            name_type = self.__expression()
+            
+            if (count >= len(param_types)):
+                self.__too_much_parameters_error()
+            elif (name_type != param_types[count]):
+                self.__type_error(name_type, param_types[count])
+            
+            self.__expression_list_rep(count+1, param_types)
+        else:
+            # check if there are more parameters expected
+            if (count < len(param_types)):
+                self.__not_enough_parameters_error()
 
     def __expression(self) -> str:
         name_type = self.__simple_expression()
@@ -379,41 +445,33 @@ class SyntacticSemanticAnalyzer:
 
         if (self.curr_token.equals("=") or self.curr_token.equals("<>") or self.curr_token.equals("<")
             or self.curr_token.equals("<=") or self.curr_token.equals(">") or self.curr_token.equals(">=")):
-            op_type = self.__relation()
+            self.__relation()
             second_name_type = self.__simple_expression()
 
-            if(name_type != op_type):
-                self.__type_error(name_type, op_type)
-            elif(op_type != second_name_type):
-                self.__type_error(second_name_type, op_type)
+            if(name_type != "integer"):
+                self.__type_error(name_type, "integer")
+            elif(second_name_type != "integer"):
+                self.__type_error(second_name_type, "integer")
 
             return_type = "boolean"
 
         return return_type
 
-    def __relation(self) -> str:
+    def __relation(self):
         if (self.curr_token.equals("=")):
             self.__match_terminal("=")
-            op_type = "boolean"
         elif (self.curr_token.equals("<>")):
             self.__match_terminal("<>")
-            op_type = "boolean"
         elif (self.curr_token.equals("<")):
             self.__match_terminal("<")
-            op_type = "integer"
         elif (self.curr_token.equals("<=")):
             self.__match_terminal("<=")
-            op_type = "integer"
         elif (self.curr_token.equals(">")):
             self.__match_terminal(">")
-            op_type = "integer"
         elif (self.curr_token.equals(">=")):
             self.__match_terminal(">=")
-            op_type = "integer"
         else:
             self.__syntax_error("a relation operator")
-
-        return op_type
 
     def __simple_expression(self) -> str:
         found = self.__unary_operator_opt()
@@ -501,12 +559,16 @@ class SyntacticSemanticAnalyzer:
     def __factor(self) -> str:
         if (self.curr_token.equals("id")):
             lexeme = self.__match_terminal("id")
-            if(not self.curr_symbol_table.get_symbol(lexeme)):
+            curr_id = self.curr_symbol_table.get_symbol(lexeme)
+
+            if (not curr_id):
                 self.__undeclared_variable_error(lexeme)
+            elif (curr_id.symbol_type not in ["var", "function"]):
+                self.__non_return_symbol_error(lexeme)
 
-            self.__function_call_without_id()
+            self.__function_call_without_id(curr_id.param_types, lexeme)
 
-            name_type = self.curr_symbol_table.get_symbol(lexeme).data_type
+            name_type = curr_id.data_type
         elif (self.curr_token.equals("num")):
             self.__match_terminal("num")
 
@@ -540,10 +602,14 @@ class SyntacticSemanticAnalyzer:
         elif (not curr_sy.can_be_assigned):
             self.__non_assignable_id_error(lexeme)
 
-    def __function_call_without_id(self):
+    def __function_call_without_id(self, param_types : list[str], lexeme: str):
         if (self.curr_token.equals("(")):
+
+            if (self.curr_symbol_table.get_symbol(lexeme).symbol_type != "function"):
+                self.__non_function_error(lexeme)
+
             self.__match_terminal("(")
-            self.__expression_list()
+            self.__expression_list(param_types)
             self.__match_terminal(")")
 
     def __language_constant(self):
