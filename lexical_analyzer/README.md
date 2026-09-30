@@ -2,7 +2,7 @@
 
 The **Lexical Analyzer** is the first stage of the Mini Pascal Compiler. Its main responsibility is to read a Pascal source file and transform the input stream of characters into a sequence of tokens.
 
-## 📘 Overview
+## Overview
 
 This component processes the input file character by character, identifying meaningful patterns and grouping them into tokens. These tokens represent the basic elements of the language and are later used by subsequent stages of the compiler.
 
@@ -15,7 +15,7 @@ The analyzer recognizes, in a general way:
 
 Each recognized token is written to an output file, including its corresponding **token name** and, when applicable, its **attribute**.
 
-## ⚙️ How It Works
+## How It Works
 
 The lexical analyzer follows a structured process based on a **finite automaton**, which defines how sequences of characters are interpreted as valid tokens.
 
@@ -27,7 +27,7 @@ As the input is scanned:
 
 This approach allows the analyzer to systematically and efficiently process the source code.
 
-## ▶️ Running the Analyzer
+## Running the Analyzer
 
 To execute the lexical analyzer, run the following command from the root directory:
 
@@ -35,10 +35,10 @@ To execute the lexical analyzer, run the following command from the root directo
 python3 -m lexical_analyzer.test_lexical test_cases/test_case1.pas
 ```
 
-Additional test cases are provided in the `test` directory (e.g., `test_case2`, `lexical_error_case1`).
+Additional test cases are provided in the `test_cases` directory (e.g., `test_case2`, `lexical_error_case1`).
 You can also provide your own Pascal source file as input to analyze different programs.
 
-## 🖼️ Finite Automaton
+## Finite Automaton
 
 The following automaton illustrates the structure used to recognize tokens in the lexical analysis process:
 
