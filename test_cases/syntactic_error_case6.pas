@@ -3,19 +3,23 @@ var
   a, b: integer;
   j,l:boolean;
 
-function algo(m,n:boolean): boolean;
- var b:boolean;
+function algo(m,n:boolean): integer;
+ var b:integer;
 begin
-  algo := a AND m OR algo;
+  algo := a + 5;
 end;
 
 procedure nuevo (b,c: integer);
 begin
-  write ( a OR b );
+  if b + c
+    then b := +1
+    else b := -5;
+  b := b + c;
+  write ( b + a );
 end;
 
 begin
-   a:= 9 + algo(j AND TRUE, l);
+   a:= 9 + algo(j, l);
    nuevo(a*2, b);
 end.
 
