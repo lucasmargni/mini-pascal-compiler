@@ -108,7 +108,7 @@ class IntermediateCodeGenerator:
 
     # MATCH
 
-    def __match_terminal(self, terminal: str) -> Optional[str]:
+    def __match_terminal(self, terminal: str) -> Optional[str | int]:
         '''returns the lexeme if and only if the terminal match with a identifier or number'''
         lexeme = None
 
@@ -379,7 +379,7 @@ class IntermediateCodeGenerator:
         
         return []
 
-    def __formal_parameter_section(self) -> list[str]:
+    def __formal_parameter_section(self) -> list[Symbol]:
         params = []
 
         list_ids = self.__identifiers_list()
@@ -456,13 +456,13 @@ class IntermediateCodeGenerator:
         self.__match_terminal(":=")
         expression_type = self.__expression()
 
-        lexeme_type = self.curr_symbol_table.get_symbol(lexeme).data_type
+        symbol = self.curr_symbol_table.get_symbol(lexeme)
+        lexeme_type = symbol.data_type
 
         # check if id and the right side are of the same type
         if (expression_type != lexeme_type):
             self.__type_error(expression_type, lexeme_type)
 
-        symbol = self.curr_symbol_table.get_symbol(lexeme)
         self.__emit(f"ALVL {symbol.level},{symbol.offset}")
 
     def __procedure_call_without_id(self, curr_id: Symbol):
@@ -689,33 +689,36 @@ class IntermediateCodeGenerator:
 
     def __term_rep(self, name_type: str):
         if (self.curr_token.equals("*") or self.curr_token.equals("div") or self.curr_token.equals("and")):
-            op_type = self.__term_operator()
+            op_type, instructions = self.__term_operator()
             second_name_type = self.__factor()
 
-            if(name_type != op_type):
+            if (name_type != op_type):
                 self.__type_error(name_type, op_type)
-            elif(op_type != second_name_type):
+            elif (op_type != second_name_type):
                 self.__type_error(second_name_type, op_type)
+
+            for instr in instructions:
+                self.__emit(instr)
 
             self.__term_rep(name_type)
 
-    def __term_operator(self) -> tuple[str, str]:
+    def __term_operator(self) -> tuple[str, list[str]]:
         if (self.curr_token.equals("*")):
             self.__match_terminal("*")
             op_type = "integer"
-            instruction = "MULT"
+            instructions = ["MULT"]
         elif (self.curr_token.equals("div")):
             self.__match_terminal("div")
             op_type = "integer"
-            instruction = "DIVC\nDIVI"
+            instructions = ["DIVC", "DIVI"]
         elif (self.curr_token.equals("and")):
             self.__match_terminal("and")
             op_type = "boolean"
-            instruction = "CONJ"
+            instructions = ["CONJ"]
         else:
             self.__syntax_error("a term operator")
 
-        return op_type, instruction
+        return op_type, instructions
 
     def __factor(self) -> str:
         if (self.curr_token.equals("id")):

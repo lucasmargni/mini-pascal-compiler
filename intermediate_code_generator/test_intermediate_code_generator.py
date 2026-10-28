@@ -1,4 +1,4 @@
-from intemediate_code_generator import IntermediateCodeGenerator
+from intermediate_code_generator import IntermediateCodeGenerator
 import sys
 import os
 
