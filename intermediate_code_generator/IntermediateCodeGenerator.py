@@ -96,7 +96,7 @@ class IntermediateCodeGenerator:
         print(f"Semantic Error: variable or function expected but '{found}' found (row {row}, col {col})")
         sys.exit(1)
 
-    def __too_much_parameters_error(self):
+    def __too_many_parameters_error(self):
         (row, col) = self.lexical_analyzer.get_position()
         print(f"Semantic Error: too much parameters found (row {row}, col {col})")
         sys.exit(1)
@@ -554,7 +554,7 @@ class IntermediateCodeGenerator:
         count = 0
 
         if (count >= len(param_types)):
-            self.__too_much_parameters_error()
+            self.__too_many_parameters_error()
         elif (name_type != param_types[count]):
             self.__type_error(name_type, param_types[count])
 
@@ -566,7 +566,7 @@ class IntermediateCodeGenerator:
             name_type = self.__expression()
             
             if (count >= len(param_types)):
-                self.__too_much_parameters_error()
+                self.__too_many_parameters_error()
             elif (name_type != param_types[count]):
                 self.__type_error(name_type, param_types[count])
             
