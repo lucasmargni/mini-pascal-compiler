@@ -71,8 +71,5 @@ This work is part of a university-level project in Computer Science, developed w
 [![nicaFernandez12](https://img.shields.io/badge/nicaFernandez12-181717?style=for-the-badge&logo=github)](https://github.com/nicaFernandez12)
 
 ## License
-
-© 2026 Lucas Margni, Nicanor Fernandez. All rights reserved.
-
-This project is provided for academic and educational purposes only.
-No part of this repository may be reproduced, distributed, or used for commercial purposes without explicit permission from the authors.
+ 
+This project is licensed under the [MIT License](LICENSE).
